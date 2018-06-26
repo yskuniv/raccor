@@ -307,8 +307,7 @@ module ProcCodeExtractor
 
       # find and return the entire target proc code
       res = iter.first.
-              map(&:ident).
-              extend(ParseHelper::Enumerable).fold_map('', &:+).
+              map(&:ident).extend(ParseHelper::Enumerable).fold_map('', &:+).
               find { |str| ProcCodePattern =~ Ripper.sexp(str) }
 
       # check if no other procs exist on the same line
