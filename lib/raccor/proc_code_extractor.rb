@@ -45,7 +45,7 @@ module ProcCodeExtractor
         private
 
         def prepare_to_fetch(nth)
-          n = [nth - @buffer.count + 1, 0].max
+          n = [(nth + 1) - @buffer.count, 0].max
           n.times do
             @buffer << begin
                          @enum_wrapper.next
