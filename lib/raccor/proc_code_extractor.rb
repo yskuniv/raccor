@@ -309,7 +309,7 @@ module ProcCodeExtractor
               extend(ParseHelper::Enumerable).fold_map('', &:+).
               find { |str| ProcCodePattern =~ Ripper.sexp(str) }
 
-      # validate if no other procs exist on the target line
+      # check if no other procs exist on the same line
       raise ExtractionError.new if iter.drop(1).
                                      find { |tokens| BeginningOfProcPattern =~ tokens }
 
