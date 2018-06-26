@@ -267,7 +267,9 @@ module ProcCodeExtractor
     end
   end
 
-  class ExtractionError < StandardError
+  class ExtractionError < StandardError; end
+
+  class MultipleProcsFoundError < ExtractionError
     def initialize
       super('multiple procs found on the target line')
     end
@@ -310,8 +312,8 @@ module ProcCodeExtractor
               find { |str| ProcCodePattern =~ Ripper.sexp(str) }
 
       # check if no other procs exist on the same line
-      raise ExtractionError.new if iter.drop(1).
-                                     find { |tokens| BeginningOfProcPattern =~ tokens }
+      raise MultipleProcsFoundError.new if iter.drop(1).
+                                             find { |tokens| BeginningOfProcPattern =~ tokens }
 
       res
     end
