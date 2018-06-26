@@ -212,10 +212,10 @@ module ProcCodeExtractor
 
       def ignored_token?(token)
         [
-          Element.new(:event => :on_sp),
-          Element.new(:event => :on_ignored_nl),
-          Element.new(:event => :on_comment),
-        ].each_with_object(token).any?(&:match?)
+          :on_sp,
+          :on_ignored_nl,
+          :on_comment
+        ].any? { |ev| token.event == ev }
       end
     end
 
