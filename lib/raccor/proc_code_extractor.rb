@@ -260,9 +260,16 @@ module ProcCodeExtractor
       def token_iterator(path)
         src = open(path)
 
-        Ripper.lex(src).
-          map { |raw| Token.new(raw) }.
+        tokenize(src).
           extend(ParseHelper::Enumerable).cons_iterator
+      end
+
+
+      private
+
+      def tokenize(src)
+        Ripper.lex(src).
+          map { |raw| Token.new(raw) }
       end
     end
   end
