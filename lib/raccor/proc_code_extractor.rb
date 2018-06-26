@@ -302,10 +302,10 @@ module ProcCodeExtractor
       iter = ParseHelper.token_iterator(proc_filepath).
                # take only tokens on the target line
                select { |tokens| token_linum, _ = tokens.first.pos; token_linum == proc_linum }.
-               # trim unnecessary tokens before the proc
+               # trim unnecessary tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
-      # find and return the entire proc code
+      # find and return the entire target proc code
       res = iter.first.
               map(&:ident).
               extend(ParseHelper::Enumerable).fold_map('', &:+).
