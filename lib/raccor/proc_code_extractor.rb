@@ -11,12 +11,8 @@ module ProcCodeExtractor
           @buffer = []
         end
 
-        def fetch(nth, ifnone = nil)
-          begin
-            prepare_to_fetch(nth)
-          rescue IndexError => e
-            return (ifnone || raise(e))
-          end
+        def fetch(nth)
+          prepare_to_fetch(nth)
 
           @buffer[nth]
         end
