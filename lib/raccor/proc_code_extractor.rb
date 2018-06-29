@@ -328,7 +328,7 @@ module ProcCodeExtractor
                # eliminate tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
-      # find index of the target proc end
+      # find index of the target proc end then count the tokens
       proc_end_index = iter.
                          map { |tokens| token = tokens.first; token.ident }.extend(ParseHelper::Enumerable).fold_map(&:+).
                          find_index { |str| ProcCodePattern =~ Ripper.sexp(str) }
