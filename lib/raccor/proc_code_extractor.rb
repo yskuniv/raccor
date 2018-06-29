@@ -57,23 +57,27 @@ module ProcCodeExtractor
       end
 
 
-      def fold_map(init = nil, &block)
-        initializer, iterator = case
-                                when init
-                                  [
-                                    proc { |_| init },
-                                    self
-                                  ]
-                                else
-                                  [
-                                    proc { |y| e = first; y << e; e },
-                                    drop(1)
-                                  ]
-                                end
+      def fold_map(given_init = nil, &block)
+        preproc, init, iter = case
+                              when given_init
+                                [
+                                  proc { |_| },
+                                  given_init,
+                                  self
+                                ]
+                              else
+                                fst = first
+                                [
+                                  proc { |y| y << fst },
+                                  fst,
+                                  drop(1)
+                                ]
+                              end
 
         Enumerator.new { |y|
-          s = initializer[y]
-          iterator.each do |item|
+          preproc[y]
+          s = init
+          iter.each do |item|
             s = block[s, item]
             y << s
           end
