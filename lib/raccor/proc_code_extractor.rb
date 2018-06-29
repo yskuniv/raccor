@@ -320,21 +320,24 @@ module ProcCodeExtractor
       proc_filepath, proc_linum = proc.source_location
 
       iter = ParseHelper.token_iterator(proc_filepath).
-               # take only tokens on the target line
-               select { |tokens| token_linum, _ = tokens.first.pos; token_linum == proc_linum }.
+               # discard tokens existing before the target line
+               drop_while { |tokens| token_linum, _ = tokens.first.pos; token_linum < proc_linum }.
                # trim unnecessary tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
-      # find and return the entire target proc code
-      res = iter.first.
-              map(&:ident).extend(ParseHelper::Enumerable).fold_map('', &:+).
-              find { |str| ProcCodePattern =~ Ripper.sexp(str) }
+      # find index of the target proc end
+      proc_end_index = iter.
+                         map(&:first).map(&:ident).extend(ParseHelper::Enumerable).fold_map(&:+).
+                         find_index { |str| ProcCodePattern =~ Ripper.sexp(str) }
+      num_proc_tokens = proc_end_index + 1
 
       # check if no other procs exist on the same line
-      raise MultipleProcsFoundError.new if iter.drop(1).
+      raise MultipleProcsFoundError.new if iter.drop(num_proc_tokens).
+                                             take_while { |tokens| token_linum, _ = tokens.first.pos; token_linum == proc_linum }.
                                              find { |tokens| BeginningOfProcPattern =~ tokens }
 
-      res
+      iter.take(num_proc_tokens).
+        map(&:first).map(&:ident).inject(&:+)
     end
   end
 end
