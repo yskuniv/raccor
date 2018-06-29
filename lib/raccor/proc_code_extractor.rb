@@ -325,7 +325,7 @@ module ProcCodeExtractor
       iter = ParseHelper.token_iterator(proc_filepath).
                # discard tokens existing before the target line
                drop_while { |tokens| token = tokens.first; token.linum < proc_linum }.
-               # trim unnecessary tokens before the target proc
+               # eliminate tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
       # find index of the target proc end
