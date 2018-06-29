@@ -322,23 +322,23 @@ module ProcCodeExtractor
 
       iter = ParseHelper.token_iterator(proc_filepath).
                # discard tokens existing before the target line
-               drop_while { |tokens| token_linum = tokens.first.linum; token_linum < proc_linum }.
+               drop_while { |tokens| token = tokens.first; token.linum < proc_linum }.
                # trim unnecessary tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
       # find index of the target proc end
       proc_end_index = iter.
-                         map(&:first).map(&:ident).extend(ParseHelper::Enumerable).fold_map(&:+).
+                         map { |tokens| token = tokens.first; token.ident }.extend(ParseHelper::Enumerable).fold_map(&:+).
                          find_index { |str| ProcCodePattern =~ Ripper.sexp(str) }
       num_proc_tokens = proc_end_index + 1
 
       # check if no other procs exist on the same line
       raise MultipleProcsFoundError.new if iter.drop(num_proc_tokens).
-                                             take_while { |tokens| token_linum = tokens.first.linum; token_linum == proc_linum }.
+                                             take_while { |tokens| token = tokens.first; token.linum == proc_linum }.
                                              find { |tokens| BeginningOfProcPattern =~ tokens }
 
       iter.take(num_proc_tokens).
-        map(&:first).map(&:ident).inject(&:+)
+        map { |tokens| token = tokens.first; token.ident }.inject(&:+)
     end
   end
 end
