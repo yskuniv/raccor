@@ -98,14 +98,15 @@ module ProcCodeExtractor
 
     class Token
       def initialize(token)
-        pos, event, ident = token
+        (linum, colnum), event, ident = token
 
-        @pos = pos
+        @linum = linum
+        @colnum = colnum
         @event = event
         @ident = ident
       end
 
-      attr_reader :pos, :event, :ident
+      attr_reader :linum, :colnum, :event, :ident
     end
 
     class TokenMatcher
@@ -321,7 +322,7 @@ module ProcCodeExtractor
 
       iter = ParseHelper.token_iterator(proc_filepath).
                # discard tokens existing before the target line
-               drop_while { |tokens| token_linum, _ = tokens.first.pos; token_linum < proc_linum }.
+               drop_while { |tokens| token_linum = tokens.first.linum; token_linum < proc_linum }.
                # trim unnecessary tokens before the target proc
                drop_while { |tokens| BeginningOfProcPattern !~ tokens }
 
@@ -333,7 +334,7 @@ module ProcCodeExtractor
 
       # check if no other procs exist on the same line
       raise MultipleProcsFoundError.new if iter.drop(num_proc_tokens).
-                                             take_while { |tokens| token_linum, _ = tokens.first.pos; token_linum == proc_linum }.
+                                             take_while { |tokens| token_linum = tokens.first.linum; token_linum == proc_linum }.
                                              find { |tokens| BeginningOfProcPattern =~ tokens }
 
       iter.take(num_proc_tokens).
