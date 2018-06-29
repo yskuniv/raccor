@@ -298,6 +298,8 @@ module ProcCodeExtractor
 
 
   class << self
+    BeginningOfBlockPattern = ParseHelper::TokenMatcher[['do',
+                                                         '{']]
     BeginningOfProcPattern = ParseHelper::TokenMatcher[
       [
         ['Proc', '.', 'new', ['do',
@@ -317,7 +319,7 @@ module ProcCodeExtractor
     ]
 
 
-    def extract(proc)
+    def extract(proc, only_in_block: false)
       proc_filepath, proc_linum = proc.source_location
 
       iter = ParseHelper.token_iterator(proc_filepath).
@@ -337,7 +339,16 @@ module ProcCodeExtractor
                                              take_while { |tokens| token = tokens.first; token.linum == proc_linum }.
                                              find { |tokens| BeginningOfProcPattern =~ tokens }
 
-      iter.take(num_proc_tokens).
+      proc_tokens = iter.take(num_proc_tokens)
+
+      res_tokens = (only_in_block ?
+                      proc_tokens.
+                        # eliminate tokens before the block
+                        drop_while { |tokens| BeginningOfBlockPattern !~ tokens }.
+                        # eliminate the beginning and the end of the block
+                        force.slice(1..-2) :
+                      proc_tokens)
+      res_tokens.
         map { |tokens| token = tokens.first; token.ident }.inject(&:+)
     end
   end
